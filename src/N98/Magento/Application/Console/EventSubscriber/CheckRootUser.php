@@ -24,7 +24,7 @@ class CheckRootUser implements EventSubscriberInterface
      *
      * @api
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [Events::RUN_BEFORE => 'checkRunningAsRootUser'];
     }

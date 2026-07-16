@@ -62,6 +62,40 @@ abstract class AbstractMagentoCommand extends Command
 
     protected array $config;
 
+    public static function getDefaultName(): ?string
+    {
+        $reflection = new \ReflectionClass(static::class);
+
+        if ($reflection->hasProperty('defaultName')) {
+            $property = $reflection->getProperty('defaultName');
+
+            if ($property->isStatic()) {
+                $value = $property->getValue();
+
+                return is_string($value) && $value !== '' ? $value : null;
+            }
+        }
+
+        return parent::getDefaultName();
+    }
+
+    public static function getDefaultDescription(): ?string
+    {
+        $reflection = new \ReflectionClass(static::class);
+
+        if ($reflection->hasProperty('defaultDescription')) {
+            $property = $reflection->getProperty('defaultDescription');
+
+            if ($property->isStatic()) {
+                $value = $property->getValue();
+
+                return is_string($value) && $value !== '' ? $value : null;
+            }
+        }
+
+        return parent::getDefaultDescription();
+    }
+
     /**
      * Initializes the command just after the input has been validated.
      *

@@ -12,6 +12,7 @@ use N98\Magento\Application\Config;
 use N98\Magento\Application\ConfigurationLoader;
 use N98\Magento\Application\Console\Event;
 use N98\Magento\Application\Console\Events;
+use N98\Util\Console\Helper\HelperSet;
 use N98\Util\Console\Helper\MagentoHelper;
 use N98\Util\Console\Helper\TwigHelper;
 use N98\Util\OperatingSystem;
@@ -20,6 +21,8 @@ use Symfony\Component\Console\Application as BaseApplication;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Event\ConsoleEvent;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
+use Symfony\Component\Console\Helper\DebugFormatterHelper;
+use Symfony\Component\Console\Helper\FormatterHelper;
 use Symfony\Component\Console\Helper\HelperInterface;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\InputDefinition;
@@ -27,6 +30,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Helper\ProcessHelper;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Throwable;
@@ -56,13 +61,6 @@ class Application extends BaseApplication
 |_||_/_/\\___/   |_|_|_\\__,_\\__, \\___|_|  \\_,_|_||_|
                            |___/
 ";
-
-    /**
-     * Shadow copy of the Application parent when using this concrete setAutoExit() implementation
-     *
-     * @see BaseApplication
-     */
-    private bool $autoExitShadow = true;
 
     /**
      * @var ClassLoader|null
@@ -114,16 +112,9 @@ class Application extends BaseApplication
         parent::__construct($appName, self::APP_VERSION);
     }
 
-    /**
-     * @return bool previous auto-exit state
-     */
-    public function setAutoExit(bool $boolean): bool
+    public function setAutoExit(bool $boolean): void
     {
-        $previous = $this->autoExitShadow;
-        $this->autoExitShadow = $boolean;
         parent::setAutoExit($boolean);
-
-        return $previous;
     }
 
     protected function getDefaultInputDefinition(): InputDefinition
@@ -175,6 +166,16 @@ class Application extends BaseApplication
         $inputDefinition->addOption($rootDirOption);
 
         return $inputDefinition;
+    }
+
+    protected function getDefaultHelperSet(): \Symfony\Component\Console\Helper\HelperSet
+    {
+        return new HelperSet([
+            new FormatterHelper(),
+            new DebugFormatterHelper(),
+            new ProcessHelper(),
+            new QuestionHelper(),
+        ]);
     }
 
     /**
